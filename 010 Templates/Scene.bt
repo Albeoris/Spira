@@ -1,0 +1,46 @@
+//--------------------------------------
+//--- 010 Editor v5.0 Binary Template
+//--------------------------------------
+
+#include "FTCX.bt"
+#include "Text.bt"
+
+// Header for the file
+typedef struct {
+    int     Count;
+    int     Offsets[Count];
+    
+    if (Count > 6)
+    {
+        local int FtcxOffset = Offsets[5];
+        local int FtcxLength = Offsets[6] - FtcxOffset;
+    }
+
+    if (Count > 7)
+    {
+        local int TextOffset = Offsets[6];
+        local int TextLength = Offsets[7] - TextOffset;
+    }
+} SceneFileHeader <read=OnSceneFileHeaderReader>;
+
+string OnSceneFileHeaderReader(SceneFileHeader &header)
+{
+    Assert(header.Count >= 0, "Invalid entrie count.");
+    
+    string s;
+    SPrintf( s, "Entries: %i", header.Count );
+    return s;
+}
+
+SceneFileHeader sceneFileHeader;
+if (sceneFileHeader.FtcxOffset)
+{
+    FSeek(sceneFileHeader.FtcxOffset);
+    ReadFtcxFile();
+}
+
+if (sceneFileHeader.TextOffset)
+{
+    FSeek(sceneFileHeader.TextOffset);
+    ReadTextFile(sceneFileHeader.TextLength);
+}

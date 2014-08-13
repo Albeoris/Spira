@@ -1,0 +1,59 @@
+//--------------------------------------
+//--- 010 Editor v5.0 Binary Template
+//--------------------------------------
+
+// Header for the file
+typedef struct
+{
+    int Offset;
+    int Offset2;
+
+    local int Length;
+} TextFileHeaderEntry <read=OnTextFileHeaderEntryReaded>;
+
+string OnTextFileHeaderEntryReaded(TextFileHeaderEntry &entry)
+{
+    Assert(entry.Offset == entry.Offset2, "Different offsets.");
+    
+    string s;
+    SPrintf( s, "Offset: %i", entry.Offset );
+    return s;
+}
+
+typedef struct {
+    
+    TextFileHeaderEntry entry;
+    local int Count = entry.Offset / 8;
+    
+    FSkip(-8);
+    TextFileHeaderEntry entries[Count];
+} TextFileHeader <read=OnTextFileHeaderReaded>;
+
+string OnTextFileHeaderReaded(TextFileHeader &header)
+{
+    Assert(header.Count < 500, "Invalid entry count.");
+
+    string s;
+    SPrintf( s, "Count: %i", header.Count);
+    return s;
+}
+
+struct Text(int length)
+{
+  char text[length];
+};
+
+//--------------------------------------
+// --Main
+//--------------------------------------
+void ReadTextFile(int size)
+{
+    TextFileHeader textFileHeader;
+    
+    local int i;
+    local char line[];
+    for (i = 0; i < textFileHeader.Count - 1; i++)
+        Text text(textFileHeader.entries[i + 1].Offset - textFileHeader.entries[i].Offset);
+
+    Text text(size - textFileHeader.entries[textFileHeader.Count - 1].Offset);
+}

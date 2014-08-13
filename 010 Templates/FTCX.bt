@@ -1,0 +1,63 @@
+//--------------------------------------
+//--- 010 Editor v5.0 Binary Template
+//--------------------------------------
+
+// Header for the file
+typedef struct {
+    int     Signature;  // 0x58435446
+    short   Unknown1;   // 0x00C8
+    short   Unknwon2;   // 0x0614
+    int     Unknown3;   // 0x00000002
+    int     Unknown4;   // 0x00000000
+    int     Unknown5;   // 0x00000043
+    short   Unknown6;   // 0x000E
+    short   Unknown7;   // 0x0012
+    int     Unknown8;   // 0x00000000
+    int     Unknown9;   // 0x00000000
+    int     BlockSize;  // 0x00000040
+    short   Unknown10;  // 0x1200
+    short   Unknown11;  // 0x0000
+    short   Unknown12;  // 0x0080
+    short   BlockCount; // 0x0012, 0x0048
+    int     Unknown13;  // 0x00000000
+    int     Unknown14;  // 0x00001240
+    int     UnknownSize;// 0x00000050
+    int     Unknown15;  // 0x00000050
+    int     Unknown16;  // 0x00000050
+    if (UnknownSize > 0)
+        byte    Unknown17[UnknownSize]; // 0x00
+    
+} FtcxFileHeader <read=OnFtcxFileHeaderReaded>;
+
+struct FtcxFileBlock (int arraySize)
+{
+    byte array[arraySize];
+};
+
+string OnFtcxFileHeaderReaded(FtcxFileHeader &header)
+{
+    Assert(header.Signature == 0x58435446, "Incorrect signature.");
+    
+    string s;
+    SPrintf( s, "BlockSize: %i, BlockCount: %i", header.BlockSize, header.BlockCount );
+    return s;
+}
+
+//--------------------------------------
+// --Main
+//--------------------------------------
+void ReadFtcxFile()
+{
+    FtcxFileHeader header;
+    if( header.Signature != 0x58435446 )
+    {
+        Warning( "File is not a FFX FTCX. Template stopped." );
+        return -1;
+    }
+    
+    local uint i;
+    for (i = 0; i < header.BlockCount; i++)
+    {
+        FtcxFileBlock block(header.BlockSize);
+    }
+}
