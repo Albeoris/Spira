@@ -119,6 +119,11 @@
       <Name>Spira.Core</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Spira.Images\Spira.Images.csproj">
+      <Project>{251971B6-5BB9-47D5-BBAC-A02C890AE5A7}</Project>
+      <Name>Spira.Images</Name>
+      <Private>False</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Spira.ISO\Spira.ISO.csproj">
       <Project>{a13c4612-e7df-47a2-8946-d0bb471c9bff}</Project>
       <Name>Spira.ISO</Name>
@@ -127,6 +132,11 @@
     <ProjectReference Include="..\Spira.Text\Spira.Text.csproj">
       <Project>{78D7C32A-4143-4FDB-A174-2E265DF33C51}</Project>
       <Name>Spira.Text</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Spira.UI\Spira.UI.csproj">
+      <Project>{3A14AB96-DD86-4B2B-AA4E-B9ED31F46E5D}</Project>
+      <Name>Spira.UI</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

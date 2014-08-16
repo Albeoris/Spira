@@ -5,8 +5,10 @@
 // Header for the file
 typedef struct
 {
-    int Offset;
-    int Offset2;
+    short Offset;
+    short ChoiseOutput;
+    short Offset2;
+    short ChoiseOutput;
 
     local int Length;
 } TextFileHeaderEntry <read=OnTextFileHeaderEntryReaded>;
@@ -14,9 +16,10 @@ typedef struct
 string OnTextFileHeaderEntryReaded(TextFileHeaderEntry &entry)
 {
     Assert(entry.Offset == entry.Offset2, "Different offsets.");
+    Assert(entry.ChoiseOutput == entry.ChoiseOutput, "Different unknown.");
     
     string s;
-    SPrintf( s, "Offset: %i", entry.Offset );
+    SPrintf( s, "Offset: %i, Unknown: %i", entry.Offset, entry.Unknown1 );
     return s;
 }
 

@@ -3,9 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="350" Width="525">
     <StackPanel>
-        <Button Height="60" Click="OnClick1"></Button>
-        <Button Height="60" Click="OnClick2"></Button>
-        <Button Height="60" Click="OnClick3"></Button>
-        <Button Height="60" Click="OnClick4"></Button>
+        <Button Height="60" Content="Extract Files" Click="OnExtractFilesClick"/>
+        <Button Height="60" Content="Convert Ev" Click="OnConvertEvClick"/>
+        <Button Height="60" Content="Convert Scene"/>
+        <Button Height="60" Content="Convert Ftcx" Click="OnConvertFtcxClick"/>
     </StackPanel>
 </Window>

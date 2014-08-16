@@ -1,0 +1,67 @@
+//--------------------------------------
+//--- 010 Editor v5.0 Binary Template
+//--------------------------------------
+
+#include "FTCX.bt"
+#include "Text.bt"
+
+const int NilOffset = 0x00000000;
+const int EndOffset = 0xFFFFFFFF;
+
+// Header for the file
+typedef struct {
+    const int InternalCount = (0x40 - 4) / 4;
+
+    int     Signature;
+    Assert(Signature == 0x31305645, "Invalid header signature.");
+
+    int     Offsets[InternalCount];
+    Assert(Offsets[0] == 0x40, "Invalid header size.");
+
+    local int Count = 0;
+
+    for (Count = 0; Count < InternalCount; Count++)
+        if (Offsets[Count] == EndOffset)
+            break;
+    
+    if (Count > 2 && Offsets[3] != NilOffset)
+    {
+        local int FtcxOffset = Offsets[3];
+        local int FtcxLength = GetLocationResourceLength(FtcxOffset, Offsets[4]);
+    }
+
+    if (Count > 3 && Offsets[4] != NilOffset)
+    {
+        local int TextOffset = Offsets[4];
+        local int TextLength = GetLocationResourceLength(TextOffset, Offsets[5]);
+    }
+} LocationFileHeader <read=OnLocationFileHeaderReader>;
+
+string OnLocationFileHeaderReader(LocationFileHeader &header)
+{
+    Assert(header.Count >= 0, "Invalid entrie count.");
+    
+    string s;
+    SPrintf( s, "Entries: %i", header.Count );
+    return s;
+}
+
+int GetLocationResourceLength(int offset, int nextOffset)
+{
+    if (nextOffset == EndOffset)
+        nextOffset = FileSize();
+    return nextOffset - offset;
+}
+
+LocationFileHeader locationFileHeader;
+if (locationFileHeader.FtcxOffset)
+{
+    FSeek(locationFileHeader.FtcxOffset);
+    ReadFtcxFile();
+}
+
+if (locationFileHeader.TextOffset)
+{
+    FSeek(locationFileHeader.TextOffset);
+    ReadTextFile(locationFileHeader.TextLength);
+}
