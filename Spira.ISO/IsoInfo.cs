@@ -1,4 +1,7 @@
-﻿using Spira.Core;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using Spira.Core;
 
 namespace Spira.ISO
 {
@@ -18,6 +21,30 @@ namespace Spira.ISO
         public long EntryTableOffset
         {
             get { return EntryTableSector * SectorSize; }
+        }
+
+        public Dictionary<int, string> GetKnownFilePathes()
+        {
+            Dictionary<int, string> result = new Dictionary<int, string>(1500);
+            
+            using (Stream input = Assembly.GetExecutingAssembly().GetManifestResourceStream("Spira.ISO." + ExecutableFileName.Replace(".", "._") + ".FileNames.bin"))
+            {
+                if (input == null)
+                    return result;
+
+                using (BinaryReader br = new BinaryReader(input))
+                {
+                    while (!input.IsEndOfStream())
+                    {
+                        int index = br.ReadInt32();
+                        int defectiveIndex = br.ReadInt32();
+                        string path = br.ReadString();
+                        result.Add(index, path);
+                    }
+                }
+            }
+            
+            return result;
         }
     }
 }

@@ -73,7 +73,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="SLPS_250.88\FileNames.bin" />
+    <EmbeddedResource Include="SLPS_250.88\FileNames.bin" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using Spira.Core;
 
@@ -18,6 +17,7 @@ namespace Spira.ISO
         public string Sha256Hash;
         public string FilePath;
         public string TruePath;
+        public string RelativePath;
 
         public IsoTableEntryInfo(int index, int defectiveIndex, long offset, long compressedSize, IsoTableEntryFlags flags)
         {

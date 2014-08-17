@@ -7,8 +7,5 @@
         <Button Height="40" Content="Convert Ev" Click="OnConvertEvClick"/>
         <Button Height="40" Content="Convert Scene"/>
         <Button Height="40" Content="Convert Ftcx" Click="OnConvertFtcxClick"/>
-        <Button Height="40" Content="Calc PS2 Hash" Click="OnCalcPS2Hash"/>
-        <Button Height="40" Content="Calc PS3 Hash" Click="OnCalcPS3Hash"/>
-        <Button Height="40" Content="PreBuild Indices" Click="OnPreBuildIndices"/>
     </StackPanel>
 </Window>

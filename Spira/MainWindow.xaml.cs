@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using Microsoft.Win32;
 using Spira.Images;
 using Spira.ISO;
@@ -21,7 +16,7 @@ namespace Spira
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         public MainWindow()
         {
@@ -32,7 +27,7 @@ namespace Spira
         {
             try
             {
-                OpenFileDialog dlg = new OpenFileDialog {Filter = "*.iso"};
+                OpenFileDialog dlg = new OpenFileDialog {Filter = "FFX Image (*.iso)|*.iso"};
                 if (dlg.ShowDialog() != true)
                     return;
 
@@ -43,11 +38,14 @@ namespace Spira
                     List<IsoTableEntryInfo> infos = UiProgressWindow.Execute("Анализ файлов", fileCommander, () => fileCommander.GetEntriesInfo(entries));
                     UiProgressWindow.Execute("Чтение дополнительной информации", fileCommander, () => fileCommander.ReadAdditionalEntriesInfo(infos));
 
-                    foreach (string signature in EnumCache<FFXFileSignatures>.Names)
-                        Directory.CreateDirectory(@"D:\Temp\FFX\" + signature.ToUpperInvariant());
+                    Dictionary<int, string> knownFilePathes = isoInfo.GetKnownFilePathes();
+                    foreach (string signature in EnumCache<FFXFileSignatures>.Names) Directory.CreateDirectory(@"W:\FFX\" + signature.ToUpperInvariant());
+                    foreach (string path in knownFilePathes.Values) Directory.CreateDirectory(@"W:\FFX\" + Path.GetDirectoryName(path));
 
-                    Directory.CreateDirectory(@"D:\Temp\FFX\Unknown");
-                    Directory.CreateDirectory(@"D:\Temp\FFX\Unknown\1B0");
+                    Directory.CreateDirectory(@"W:\FFX\Unknown");
+
+                    foreach (IsoTableEntryInfo info in infos)
+                        knownFilePathes.TryGetValue(info.Index, out info.RelativePath);
 
                     UiProgressWindow.Execute("Распаковка файлов", (total, incr) => ExtractFiles(fileCommander, infos, total, incr));
                 }
@@ -68,11 +66,16 @@ namespace Spira
         {
             try
             {
-                if (info.CompressedSize < 1 || !EnumCache<FFXFileSignatures>.IsDefined(info.Signature))
+                if (info.CompressedSize < 1)
                     return;
 
-                string outputPath = Path.Combine(@"D:\Temp\FFX", info.Signature.ToString().ToUpperInvariant(), info.GetFileName());
-                fileCommander.ExtractFile(info, outputPath);
+                if (string.IsNullOrEmpty(info.RelativePath))
+                {
+                    string folder = EnumCache<FFXFileSignatures>.IsDefined(info.Signature) ? info.Signature.ToString().ToUpperInvariant() : "Unknown";
+                    info.RelativePath = Path.Combine(folder, info.GetFileName());
+                }
+
+                fileCommander.ExtractFile(info, Path.Combine(@"W:\FFX", info.RelativePath));
             }
             catch (Exception ex)
             {
@@ -88,7 +91,7 @@ namespace Spira
         {
             try
             {
-                OpenFileDialog dlg = new OpenFileDialog {Filter = "*.ev", Multiselect = true};
+                OpenFileDialog dlg = new OpenFileDialog {Filter = "Events (*.ev, *.ebp)|*.ev;*.ebp", Multiselect = true};
                 if (dlg.ShowDialog() != true)
                     return;
 
@@ -135,164 +138,6 @@ namespace Spira
                             imageInput.CopyTo(output);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-        }
-
-        private void OnCalcPS2Hash(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                new Thread(() =>
-                {
-                    Parallel.ForEach(Directory.GetFiles(@"W:\FFX", "*", SearchOption.AllDirectories), filePath =>
-                    {
-                        string name = Path.GetFileNameWithoutExtension(filePath);
-                        if (name.Length > 30)
-                            return;
-
-                        using (FileStream input = File.OpenRead(filePath))
-                        {
-                            SHA256Managed sha = new SHA256Managed();
-                            byte[] hash = sha.ComputeHash(input);
-                            name += '_' + BitConverter.ToString(hash).Replace("-", String.Empty).ToLower();
-                        }
-
-                        File.Move(filePath, Path.Combine(Path.GetDirectoryName(filePath), name + Path.GetExtension(filePath)));
-                    });
-
-                    MessageBox.Show("All done!");
-                }).Start();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-        }
-
-        private void OnCalcPS3Hash(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                new Thread(() =>
-                {
-                    Parallel.ForEach(Directory.GetFiles(@"W:\FFX_PS3", "*", SearchOption.AllDirectories), filePath =>
-                    {
-                        string infoPath = filePath + ".fileinfo";
-                        using (FileStream input = File.OpenRead(filePath))
-                        {
-                            SHA256Managed sha = new SHA256Managed();
-                            byte[] hash = sha.ComputeHash(input);
-                            using (FileStream output = File.Create(infoPath))
-                            using (BinaryWriter bw = new BinaryWriter(output))
-                            {
-                                bw.Write(filePath);
-                                bw.Write(input.Length);
-                                bw.Write(BitConverter.ToString(hash).Replace("-", String.Empty).ToLower());
-                            }
-                        }
-                    });
-
-                    MessageBox.Show("All done!");
-                }).Start();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-        }
-
-        private void OnPreBuildIndices(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                ConcurrentDictionary<string, IsoTableEntryInfo> ps2Infos = new ConcurrentDictionary<string, IsoTableEntryInfo>();
-                ConcurrentDictionary<string, string> invalidHash = new ConcurrentDictionary<string, string>();
-
-                new Thread(() =>
-                {
-                    Parallel.ForEach(Directory.GetFiles(@"W:\FFX", "*", SearchOption.AllDirectories), filePath =>
-                    {
-                        IsoTableEntryInfo info = IsoTableEntryInfo.TryParse(filePath);
-                        if (info == null)
-                        {
-                            Log.Error(filePath);
-                            return;
-                        }
-
-                        if (!ps2Infos.TryAdd(info.Sha256Hash, info))
-                            invalidHash.TryAdd(info.Sha256Hash, info.Sha256Hash);
-                    });
-
-                    ConcurrentDictionary<string, Tuple<string, long>> ps3Infos = new ConcurrentDictionary<string, Tuple<string, long>>();
-                    Parallel.ForEach(Directory.GetFiles(@"W:\FFX_PS3", "*.fileinfo", SearchOption.AllDirectories), filePath =>
-                    {
-                        using (FileStream input = File.OpenRead(filePath))
-                        using (BinaryReader br = new BinaryReader(input))
-                        {
-                            string path = br.ReadString();
-                            long length = br.ReadInt64();
-                            if (length == 0)
-                                return;
-
-                            string hash = br.ReadString();
-                            if (!ps3Infos.TryAdd(hash, Tuple.Create(path, length)))
-                                invalidHash.TryAdd(hash, hash);
-                        }
-                    });
-
-                    foreach (string hash in invalidHash.Keys)
-                    {
-                        ps2Infos.Remove(hash);
-                        ps3Infos.Remove(hash);
-                    }
-                    using (FileStream output = File.Create(@"W:\PS2.txt"))
-                    using (BinaryWriter bw = new BinaryWriter(output))
-                    {
-                        foreach (IsoTableEntryInfo info in ps2Infos.Values.OrderBy(v => v.Index))
-                            info.Write(bw);
-                    }
-
-                    using (FileStream output = File.Create(@"W:\PS3.txt"))
-                    using (BinaryWriter bw = new BinaryWriter(output))
-                    {
-                        foreach (KeyValuePair<string, Tuple<string, long>> pair in ps3Infos)
-                        {
-                            bw.Write(pair.Value.Item1);
-                            bw.Write(pair.Value.Item2);
-                            bw.Write(pair.Key);
-                        }
-                    }
-
-                    ConcurrentBag<IsoTableEntryInfo> bag = new ConcurrentBag<IsoTableEntryInfo>();
-                    foreach (KeyValuePair<string, IsoTableEntryInfo> ps2 in ps2Infos)
-                    {
-                        Tuple<string, long> ps3;
-                        if (!ps3Infos.TryGetValue(ps2.Key, out ps3))
-                            continue;
-
-                        if (ps2.Value.UncompressedSize != ps3.Item2)
-                            continue;
-
-                        ps2.Value.TruePath = ps3.Item1;
-                        bag.Add(ps2.Value);
-                    }
-
-                    using (FileStream output = File.Create(@"W:\PS23.txt"))
-                    using (BinaryWriter bw = new BinaryWriter(output))
-                    {
-                        foreach (IsoTableEntryInfo info in bag)
-                        {
-                            bw.Write(info.Index);
-                            bw.Write(info.DefectiveIndex);
-                            bw.Write(info.TruePath.Substring(28));
-                        }
-                    }
-                    MessageBox.Show("Alldone");
-                }).Start();
             }
             catch (Exception ex)
             {
