@@ -58,7 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IsoFileCommander.cs" />
-    <Compile Include="IsoFileInfo.cs" />
+    <Compile Include="IsoInfo.cs" />
     <Compile Include="IsoTableEntry.cs" />
     <Compile Include="IsoTableEntryFlags.cs" />
     <Compile Include="IsoTableEntryInfo.cs" />
@@ -71,6 +71,9 @@
       <Name>Spira.Core</Name>
       <Private>False</Private>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SLPS_250.88\FileNames.bin" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

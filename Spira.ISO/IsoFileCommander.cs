@@ -9,7 +9,7 @@ namespace Spira.ISO
 {
     public sealed class IsoFileCommander : IProgressSender, IDisposable
     {
-        private readonly IsoFileInfo _isoInfo;
+        private readonly IsoInfo _isoInfo;
         private readonly FileStream _stream;
         private readonly MemoryMappedFile _memory;
 
@@ -18,7 +18,7 @@ namespace Spira.ISO
         public event Action<long> ProgressTotalChanged;
         public event Action<long> ProgressIncrement;
 
-        public IsoFileCommander(IsoFileInfo isoInfo)
+        public IsoFileCommander(IsoInfo isoInfo)
         {
             _isoInfo = Exceptions.CheckArgumentNull(isoInfo, "isoInfo");
 

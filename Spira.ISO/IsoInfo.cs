@@ -2,7 +2,7 @@
 
 namespace Spira.ISO
 {
-    public sealed class IsoFileInfo
+    public sealed class IsoInfo
     {
         public readonly string FilePath;
         public readonly string ExecutableFileName = "SLPS_250.88";
@@ -10,7 +10,7 @@ namespace Spira.ISO
         public readonly long SectorSize = 2048;
         public readonly int MaxEntriesCount = 0x4000;
 
-        public IsoFileInfo(string filePath)
+        public IsoInfo(string filePath)
         {
             FilePath = Exceptions.CheckFileNotFoundException(filePath);
         }

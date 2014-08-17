@@ -56,8 +56,8 @@ int GetLocationResourceLength(int offset, int nextOffset)
 LocationFileHeader locationFileHeader;
 if (locationFileHeader.FtcxOffset)
 {
-    FSeek(locationFileHeader.FtcxOffset);
-    ReadFtcxFile();
+    //FSeek(locationFileHeader.FtcxOffset);
+    //ReadFtcxFile();
 }
 
 if (locationFileHeader.TextOffset)
