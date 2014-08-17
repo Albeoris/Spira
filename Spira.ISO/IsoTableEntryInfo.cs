@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using Spira.Core;
 
@@ -11,13 +12,12 @@ namespace Spira.ISO
         public long Offset;
         public long CompressedSize;
         public long UncompressedSize;
+        public bool IsCompressed;
         public IsoTableEntryFlags Flags;
-        public bool ImplicitCompressed;
         public FFXFileSignatures Signature;
-        public string Sha256Hash;
-        public string FilePath;
-        public string TruePath;
-        public string RelativePath;
+        public IsoAdditionalInfo AdditionalInfo;
+        public string PS2KnownName;
+        public string PS3KnownPath;
 
         public IsoTableEntryInfo(int index, int defectiveIndex, long offset, long compressedSize, IsoTableEntryFlags flags)
         {
@@ -28,11 +28,20 @@ namespace Spira.ISO
             Flags = flags;
         }
 
+        public string GetRelativePath()
+        {
+            if (!string.IsNullOrEmpty(PS3KnownPath))
+                return PS3KnownPath;
+
+            string folder = EnumCache<FFXFileSignatures>.IsDefined(Signature) ? Signature.ToString().ToUpper() : "Unknown";
+            return Path.Combine(folder, string.IsNullOrEmpty(PS2KnownName) ? GetFileName() : PS2KnownName + '.' + folder.ToLower());
+        }
+
         public string GetFileName()
         {
             StringBuilder sb = new StringBuilder(20);
             sb.AppendFormat("F{0:D5}_{1:D5}", Index, DefectiveIndex);
-            if (ImplicitCompressed) sb.Append('I');
+            if (IsCompressed) sb.Append('I');
             if ((Flags & IsoTableEntryFlags.Compressed) == IsoTableEntryFlags.Compressed) sb.Append('C');
             if ((Flags & IsoTableEntryFlags.Dummy) == IsoTableEntryFlags.Dummy) sb.Append('D');
             if (EnumCache<FFXFileSignatures>.IsDefined(Signature)) sb.Append('.').Append(Signature.ToString().ToLowerInvariant());
@@ -49,8 +58,7 @@ namespace Spira.ISO
 
             bool implicitCompressed = false;
             IsoTableEntryFlags flags = IsoTableEntryFlags.None;
-            string hash = null;
-            for (int i = 12; i < name.Length && hash == null; i++)
+            for (int i = 12; i < name.Length; i++)
             {
                 switch (name[i])
                 {
@@ -62,9 +70,6 @@ namespace Spira.ISO
                         break;
                     case 'D':
                         flags |= IsoTableEntryFlags.Dummy;
-                        break;
-                    case '_':
-                        hash = name.Substring(i + 1);
                         break;
                 }
             }
@@ -81,26 +86,10 @@ namespace Spira.ISO
 
             return new IsoTableEntryInfo(index, defectiveIndex, -1, -1, flags)
             {
-                ImplicitCompressed = implicitCompressed,
+                IsCompressed = implicitCompressed,
                 Signature = signature,
                 UncompressedSize = new FileInfo(filePath).Length,
-                Sha256Hash = hash,
-                FilePath = filePath
             };
-        }
-
-        public void Write(BinaryWriter bw)
-        {
-            bw.Write(Index);
-            bw.Write(DefectiveIndex);
-            bw.Write((int)Flags);
-            
-            bw.Write(UncompressedSize);
-            bw.Write(ImplicitCompressed);
-            bw.Write((int)Signature);
-            bw.Write(Sha256Hash);
-
-            bw.Write(FilePath);
         }
     }
 }

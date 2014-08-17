@@ -114,9 +114,19 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Spira.Battle\Spira.Battle.csproj">
+      <Project>{84554215-0117-4D20-89C6-38E0C7110E5D}</Project>
+      <Name>Spira.Battle</Name>
+      <Private>False</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Spira.Core\Spira.Core.csproj">
       <Project>{8bca4ed0-1a6c-4f79-a745-bbc723e712ed}</Project>
       <Name>Spira.Core</Name>
+      <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Spira.Events\Spira.Events.csproj">
+      <Project>{9882DFBA-625A-4D31-B80C-6956A3C6C80A}</Project>
+      <Name>Spira.Events</Name>
       <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\Spira.Images\Spira.Images.csproj">
@@ -132,6 +142,7 @@
     <ProjectReference Include="..\Spira.Text\Spira.Text.csproj">
       <Project>{78D7C32A-4143-4FDB-A174-2E265DF33C51}</Project>
       <Name>Spira.Text</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\Spira.UI\Spira.UI.csproj">
       <Project>{3A14AB96-DD86-4B2B-AA4E-B9ED31F46E5D}</Project>

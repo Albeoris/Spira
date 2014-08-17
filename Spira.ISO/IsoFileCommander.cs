@@ -112,13 +112,13 @@ namespace Spira.ISO
                 using (Stream input = OpenStream(info.Offset, info.CompressedSize))
                 using (MemoryStream output = new MemoryStream(4))
                 {
-                    if (!info.ImplicitCompressed)
+                    if (!info.IsCompressed)
                     {
-                        info.ImplicitCompressed = (input.ReadByte() == 0x01);
+                        info.IsCompressed = (input.ReadByte() == 0x01);
                         input.Seek(-1, SeekOrigin.Current);
                     }
 
-                    if (info.ImplicitCompressed)
+                    if (info.IsCompressed)
                     {
                         input.Seek(1, SeekOrigin.Current);
                         int uncompressedSize = input.ReadStruct<int>();
@@ -152,10 +152,12 @@ namespace Spira.ISO
 
         public void ExtractFile(IsoTableEntryInfo info, string outputPath)
         {
+            Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
+
             using (Stream input = OpenStream(info.Offset, info.CompressedSize))
             using (Stream output = File.Create(outputPath))
             {
-                if (!info.ImplicitCompressed)
+                if (!info.IsCompressed)
                 {
                     input.CopyTo(output);
                 }

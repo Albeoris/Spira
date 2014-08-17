@@ -23,28 +23,35 @@ namespace Spira.ISO
             get { return EntryTableSector * SectorSize; }
         }
 
-        public Dictionary<int, string> GetKnownFilePathes()
+        public void FillKnownFileInformation(List<IsoTableEntryInfo> infos)
         {
-            Dictionary<int, string> result = new Dictionary<int, string>(1500);
+            Dictionary<int, IsoTableEntryInfo> dic = new Dictionary<int, IsoTableEntryInfo>(infos.Count);
+            foreach (IsoTableEntryInfo info in infos)
+                dic.Add(info.Index, info);
             
-            using (Stream input = Assembly.GetExecutingAssembly().GetManifestResourceStream("Spira.ISO." + ExecutableFileName.Replace(".", "._") + ".FileNames.bin"))
+            using (Stream input = Assembly.GetExecutingAssembly().GetManifestResourceStream("Spira.ISO." + ExecutableFileName.Replace(".", "._") + ".AdditionalFileInformation.bin"))
             {
                 if (input == null)
-                    return result;
+                    return;
 
                 using (BinaryReader br = new BinaryReader(input))
                 {
                     while (!input.IsEndOfStream())
                     {
                         int index = br.ReadInt32();
-                        int defectiveIndex = br.ReadInt32();
-                        string path = br.ReadString();
-                        result.Add(index, path);
+                        int defective = br.ReadInt32();
+                        IsoTableEntryInfo info = dic[index];
+                        
+                        info.AdditionalInfo = (IsoAdditionalInfo)br.ReadInt32();
+                        if ((info.AdditionalInfo & IsoAdditionalInfo.PS2KnownSignature) == IsoAdditionalInfo.PS2KnownSignature)
+                            info.Signature = (FFXFileSignatures)br.ReadInt32();
+                        if ((info.AdditionalInfo & IsoAdditionalInfo.PS2KnownName) == IsoAdditionalInfo.PS2KnownName)
+                            info.PS2KnownName = br.ReadString();
+                        if ((info.AdditionalInfo & IsoAdditionalInfo.PS3KnownPath) == IsoAdditionalInfo.PS3KnownPath)
+                            info.PS3KnownPath = br.ReadString();
                     }
                 }
             }
-            
-            return result;
         }
     }
 }
