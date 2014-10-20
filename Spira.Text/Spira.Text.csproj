@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{78D7C32A-4143-4FDB-A174-2E265DF33C51}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Spira.Text</RootNamespace>
+    <AssemblyName>Spira.Text</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Encoding\FFXTextDecoder.cs" />
+    <Compile Include="Encoding\FFXTextEncoder.cs" />
+    <Compile Include="Encoding\FFXTextEncoding.cs" />
+    <Compile Include="Encoding\FFXTextEncodingCodepage.cs" />
+    <Compile Include="Encoding\Tags\FFXTextTag.cs" />
+    <Compile Include="Encoding\Tags\FFXTextTagCharacter.cs" />
+    <Compile Include="Encoding\Tags\FFXTextTagCode.cs" />
+    <Compile Include="Encoding\Tags\FFXTextTagFont.cs" />
+    <Compile Include="Encoding\Tags\FFXTextTagItem.cs" />
+    <Compile Include="Encoding\Tags\FFXTextTagKey.cs" />
+    <Compile Include="Encoding\Tags\FFXTextTagParam.cs" />
+    <Compile Include="Encoding\Tags\FFXTextTagArea.cs" />
+    <Compile Include="Encoding\Tags\FFXTextTagNpc.cs" />
+    <Compile Include="Encoding\Tags\FFXTextTagSystem.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Spira.Core\Spira.Core.csproj">
+      <Project>{8BCA4ED0-1A6C-4F79-A745-BBC723E712ED}</Project>
+      <Name>Spira.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
